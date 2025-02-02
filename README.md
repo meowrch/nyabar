@@ -1,9 +1,9 @@
-<h1 align="center"><img src="https://raw.githubusercontent.com/JaKooLit/Telegram-Animated-Emojis/refs/heads/main/Activity/Sparkles.webp"/ height=50> HyDePanel</h1>
+<h1 align="center"><img src="https://raw.githubusercontent.com/JaKooLit/Telegram-Animated-Emojis/refs/heads/main/Activity/Sparkles.webp"/ height=50> NyaBar</h1>
 <p align="center">
- <a href="https://github.com/rubiin/HyDePanel/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/rubiin/HyDePanel"></a>
+ <a href="https://github.com/meowrch/nyabar/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/meowrch/nyabar"></a>
   <a href='http://makeapullrequest.com'><img alt='PRs Welcome' src='https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields'/></a>
-  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/rubiin/HyDePanel"/>
-  <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/rubiin/HyDePanel"/>
+  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/meowrch/nyabar"/>
+  <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/meowrch/nyabar"/>
   <img alt="discord" src="https://img.shields.io/discord/1200448076620501063" />
 </p>
 
@@ -13,6 +13,12 @@ The panel focuses on providing an all-in-one, fully integrated panel experience,
 ![image](https://github.com/user-attachments/assets/9f5a0e67-9b98-4615-adcf-511a05527ec2)
 
 ---
+
+## ⚡ About the fork
+Fork was created in order to integrate this project into bspwm (window manager). 
+Also here will be added chips specifically for [meowrch](https://github.com/meowrch/meowrch). 
+
+❤️ Huge thanks to the [original author](https://github.com/rubiin) of [this project](https://github.com/rubiin/HyDePanel). Without him it would have taken me a lot more time.
 
 ## Prerequisites
 
@@ -76,7 +82,7 @@ hypridle
 - Clone this repository:
 
 ```sh
-git clone https://github.com/rubiin/HyDePanel.git bar
+git clone https://github.com/meowrch/nyabar.git bar
 cd bar
 ```
 
