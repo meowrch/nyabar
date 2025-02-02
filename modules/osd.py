@@ -6,14 +6,14 @@ from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.label import Label
 from fabric.widgets.revealer import Revealer
-from fabric.widgets.wayland import WaylandWindow as Window
+from fabric.widgets.wayland import WaylandWindow
+from fabric.widgets.x11 import X11Window
 from gi.repository import GObject
 
 import utils.functions as helpers
 import utils.icons as icons
 from services import audio_service
 from services.brightness import Brightness
-from utils.monitors import HyprlandWithMonitors
 from utils.widget_settings import BarConfig
 from utils.widget_utils import (
     create_scale,
@@ -103,7 +103,7 @@ class AudioOSDContainer(GenericOSDContainer):
 
     def on_volume_changed(self, *_):
         if self.audio.speaker:
-            volume = self.scale.value
+            volume = int(self.scale.value)
             if 0 <= volume <= 100:
                 self.audio.speaker.set_volume(volume)
                 self.update_icon(volume)
@@ -126,14 +126,13 @@ class AudioOSDContainer(GenericOSDContainer):
         self.icon.set_from_icon_name(icon_name)
 
 
-class OSDContainer(Window):
+class OSDContainer:
     """A widget to display the OSD for audio and brightness."""
 
     def __init__(
         self,
         widget_config: BarConfig,
         transition_duration=200,
-        keyboard_mode: Literal["none", "exclusive", "on-demand"] = "on-demand",
         **kwargs,
     ):
         self.config = widget_config["osd"]
@@ -149,18 +148,6 @@ class OSDContainer(Window):
             transition_duration=transition_duration,
             child_revealed=False,
         )
-
-        super().__init__(
-            layer="overlay",
-            anchor=self.config["anchor"],
-            child=self.revealer,
-            visible=False,
-            pass_through=True,
-            keyboard_mode=keyboard_mode,
-            **kwargs,
-        )
-
-        self.monitor = HyprlandWithMonitors().get_current_gdk_monitor_id()
 
         self.last_activity_time = time.time()
 
@@ -200,3 +187,52 @@ class OSDContainer(Window):
         if time.time() - self.last_activity_time >= (self.timeout / 1000):
             self.start_hide_timer()
         return True
+
+
+class X11OSDContainer(X11Window, OSDContainer):
+    def __init__(
+        self,
+        widget_config: BarConfig,
+        transition_duration=200,
+        **kwargs,
+    ):
+        OSDContainer.__init__(
+            self,
+            widget_config=widget_config,
+            transition_duration=transition_duration,
+        )
+        X11Window.__init__(
+            self,
+            type_hint="dock",
+            geometry="bottom",
+            layer=widget_config["options"]["layer"],
+            visible=True,
+            all_visible=False,
+            child=self.revealer,
+            **kwargs,
+        )
+
+
+class WaylandOSDContainer(WaylandWindow, OSDContainer):
+    def __init__(
+        self,
+        widget_config: BarConfig,
+        transition_duration=200,
+        keyboard_mode: Literal["none", "exclusive", "on-demand"] = "on-demand",
+        **kwargs,
+    ):
+        OSDContainer.__init__(
+            self,
+            widget_config=widget_config,
+            transition_duration=transition_duration,
+        )
+        WaylandWindow.__init__(
+            self,
+            layer="overlay",
+            anchor=self.config["anchor"],
+            child=self.revealer,
+            visible=False,
+            pass_through=True,
+            keyboard_mode=keyboard_mode,
+            **kwargs,
+        )

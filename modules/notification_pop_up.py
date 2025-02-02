@@ -11,6 +11,7 @@ from fabric.widgets.image import Image
 from fabric.widgets.label import Label
 from fabric.widgets.revealer import Revealer
 from fabric.widgets.wayland import WaylandWindow
+from fabric.widgets.x11 import X11Window
 from gi.repository import Gdk, GdkPixbuf, GLib
 
 import utils.constants as constants
@@ -24,15 +25,13 @@ from utils.widget_settings import BarConfig
 from utils.widget_utils import get_icon
 
 
-class NotificationPopup(WaylandWindow):
+class NotificationPopup:
     """A widget to grab and display notifications."""
 
     def __init__(self, widget_config: BarConfig, **kwargs):
         self._server = notification_service
 
         self.config = widget_config["notification"]
-
-        self.hyprland_monitor = HyprlandWithMonitors()
 
         self.ignored_apps = helpers.unique_list(self.config["ignored"])
 
@@ -44,17 +43,6 @@ class NotificationPopup(WaylandWindow):
             spacing=5,
         )
         self._server.connect("notification-added", self.on_new_notification)
-
-        super().__init__(
-            anchor=self.config["anchor"],
-            layer="overlay",
-            all_visible=True,
-            monitor=HyprlandWithMonitors().get_current_gdk_monitor_id(),
-            visible=True,
-            exclusive=False,
-            child=self.notifications,
-            **kwargs,
-        )
 
     def on_new_notification(self, fabric_notif, id):
         notification: Notification = fabric_notif.get_notification_from_id(id)
@@ -70,6 +58,39 @@ class NotificationPopup(WaylandWindow):
         self.notifications.add(new_box)
         new_box.set_reveal_child(True)
         cache_notification_service.cache_notification(notification)
+
+
+class X11NotificationPopup(X11Window, NotificationPopup):
+    """An X11 version of the notification popup."""
+
+    def __init__(self, widget_config: BarConfig, **kwargs):
+        NotificationPopup.__init__(self, widget_config, **kwargs)
+        X11Window.__init__(
+            self,
+            name="panel",
+            geometry="top",
+            layer="top",
+            visible=True,
+            all_visible=False,
+            child=self.notifications,
+            **kwargs,
+        )
+
+class HyprlandNotificationPopup(WaylandWindow, NotificationPopup):
+    """A Wayland version of the notification popup."""
+
+    def __init__(self, widget_config: BarConfig, **kwargs):
+        NotificationPopup.__init__(self, widget_config, **kwargs)
+        super().__init__(
+            anchor=self.config["anchor"],
+            layer="overlay",
+            all_visible=True,
+            monitor=HyprlandWithMonitors().get_current_gdk_monitor_id(),
+            visible=True,
+            exclusive=False,
+            child=self.notifications,
+            **kwargs,
+        )
 
 
 class NotificationWidget(EventBox):

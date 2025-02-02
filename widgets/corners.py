@@ -1,6 +1,7 @@
 from fabric.widgets.box import Box
 from fabric.widgets.shapes import Corner
-from fabric.widgets.wayland import WaylandWindow as Window
+from fabric.widgets.wayland import WaylandWindow
+from fabric.widgets.x11 import X11Window
 
 
 class MyCorner(Box):
@@ -17,20 +18,10 @@ class MyCorner(Box):
         )
 
 
-class ScreenCorners(Window):
+class ScreenCorners:
     """A window that displays all four corners."""
 
     def __init__(self):
-        super().__init__(
-            name="corners",
-            layer="top",
-            anchor="top bottom left right",
-            exclusivity="normal",
-            pass_through=True,
-            visible=False,
-            all_visible=False,
-        )
-
         self.all_corners = Box(
             name="all-corners",
             orientation="v",
@@ -63,6 +54,34 @@ class ScreenCorners(Window):
             ],
         )
 
-        self.add(self.all_corners)
 
+class X11ScreenCorners(X11Window, ScreenCorners):
+    def __init__(self):
+        X11Window.__init__(
+            self,
+            type_hint="dock",
+            name="corners",
+            geometry="top",
+            visible=True,
+            all_visible=False,
+        )
+        ScreenCorners.__init__(self)
+        self.add(self.all_corners)
+        self.show_all()
+
+
+class WaylandScreenCorners(WaylandWindow, ScreenCorners):
+    def __init__(self):
+        WaylandWindow.__init__(
+            self,
+            name="corners",
+            layer="top",
+            anchor="top bottom left right",
+            exclusivity="normal",
+            pass_through=True,
+            visible=False,
+            all_visible=False,
+        )
+        ScreenCorners.__init__(self)
+        self.add(self.all_corners)
         self.show_all()

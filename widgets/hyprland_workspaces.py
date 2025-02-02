@@ -5,10 +5,10 @@ from utils.functions import unique_list
 from utils.widget_settings import BarConfig
 
 
-class WorkSpacesWidget(BoxWidget):
+class HyprlandWorkSpacesWidget(BoxWidget):
     """A widget to display the current workspaces."""
 
-    def __init__(self, widget_config: BarConfig, bar, **kwargs):
+    def __init__(self, widget_config: BarConfig, **kwargs):
         super().__init__(name="workspaces-box", **kwargs)
 
         self.config = widget_config["workspaces"]

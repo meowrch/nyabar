@@ -1,16 +1,19 @@
+import argparse
+
 import setproctitle
 from fabric import Application
 from fabric.utils import exec_shell_command, get_relative_path, monitor_file
 from loguru import logger
 
 import utils.functions as helpers
-from modules.bar import StatusBar
-from modules.notification_pop_up import NotificationPopup
-from modules.osd import OSDContainer
+from modules.bar import WaylandStatusBar, X11StatusBar
+from modules.notification_pop_up import HyprlandNotificationPopup, X11NotificationPopup
+from modules.osd import WaylandOSDContainer, X11OSDContainer
 from utils.colors import Colors
 from utils.config import widget_config
 from utils.constants import APP_CACHE_DIRECTORY, APPLICATION_NAME
-from widgets.corners import ScreenCorners
+from utils.enums import WMEnum
+from widgets.corners import WaylandScreenCorners, X11ScreenCorners
 
 
 def process_and_apply_css(app: Application):
@@ -34,17 +37,52 @@ for log in [
 
 
 if __name__ == "__main__":
-    # Create the status bar
-    bar = StatusBar()
-    notifications = NotificationPopup(widget_config)
+    parser = argparse.ArgumentParser(
+        description="Пример парсинга аргументов командной строки."
+    )
+
+    parser.add_argument(
+        "--wm",
+        type=str,
+        choices=[wm.value for wm in WMEnum],
+        required=True,
+        help="Выберите оконный менеджер: hyprland или bspwm",
+    )
+
+    args = parser.parse_args()
+
+    try:
+        wm = WMEnum(args.wm)
+    except ValueError as e:
+        raise ValueError(f"Недопустимое значение для --wm: {args.wm}") from e
+
+    # Create the status bar and notifications
+    if wm in [WMEnum.HYPRLAND]:
+        bar = WaylandStatusBar()
+        notifications = HyprlandNotificationPopup(widget_config)
+    elif wm in [WMEnum.BSPWM]:
+        bar = X11StatusBar()
+        notifications = X11NotificationPopup(widget_config)
+    else:
+        raise ValueError(f"Недопустимое значение для --wm: {args.wm}")
 
     windows = [notifications, bar]
 
     if widget_config["options"]["screen_corners"]:
-        windows.append(ScreenCorners())
+        if wm in [WMEnum.HYPRLAND]:
+            windows.append(WaylandScreenCorners())
+        elif wm in [WMEnum.BSPWM]:
+            windows.append(X11ScreenCorners())
+        else:
+            raise ValueError(f"Недопустимое значение для --wm: {args.wm}")
 
     if widget_config["osd"]["enabled"]:
-        windows.append(OSDContainer(widget_config))
+        if wm in [WMEnum.HYPRLAND]:
+            windows.append(WaylandOSDContainer(widget_config))
+        elif wm in [WMEnum.BSPWM]:
+            windows.append(X11OSDContainer(widget_config))
+        else:
+            raise ValueError(f"Недопустимое значение для --wm: {args.wm}")
 
     # Initialize the application with the status bar
     app = Application(APPLICATION_NAME, windows=windows)

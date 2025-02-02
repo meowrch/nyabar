@@ -8,6 +8,8 @@ from .dashboard import *
 from .datetime_menu import *
 from .hypr_idle import *
 from .hypr_sunset import *
+from .hyprland_workspaces import *
+from .bspwm_workspaces import *
 from .keyboard_layout import *
 from .language import *
 from .microphone import *
@@ -24,4 +26,3 @@ from .utility_widgets import *
 from .volume import *
 from .weather import *
 from .window_title import *
-from .workspaces import *
